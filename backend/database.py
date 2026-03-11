@@ -1,9 +1,16 @@
 """SQLAlchemy async database setup."""
 
+import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
-DATABASE_URL = "sqlite+aiosqlite:///./smartflow.db"
+# Use DATABASE_URL environment variable (from Railway/deployment)
+# Fall back to SQLite for local development
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./smartflow.db")
+
+# Replace postgresql:// with postgresql+asyncpg:// for async support
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 

@@ -1,10 +1,1 @@
-[build]
-builder = "dockerfile"
-
-[[services]]
-name = "backend"
-rootDirectory = "backend"
-
-[[services]]
-name = "frontend"
-rootDirectory = "frontend"
+# Configuration handled in railway.json
