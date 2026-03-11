@@ -1,0 +1,2 @@
+# Railway Auto-Detection File
+# This file tells Railway to treat this as a Python project
