@@ -3,8 +3,9 @@ import './globals.css';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { API_URL } from '@/lib/config';
 
-const API = 'http://localhost:8000/api';
+const API = `${API_URL}/api`;
 const NAV_ITEMS = [
   { section: 'MAIN' },
   { href: '/', icon: '◎', label: 'Dashboard' },

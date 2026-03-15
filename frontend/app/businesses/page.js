@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-const API = 'http://localhost:8000/api';
+import { API_URL } from '@/lib/config';
+const API = `${API_URL}/api`;
 const PROVIDER_MODELS = { openai: ['gpt-4o','gpt-4o-mini','gpt-4-turbo','gpt-4','gpt-3.5-turbo','o1-mini','o3-mini'], gemini: ['gemini-2.0-flash','gemini-1.5-pro','gemini-1.5-flash','gemini-1.0-pro'], openrouter: [] };
 
 export default function Businesses() {

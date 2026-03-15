@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-const API = 'http://localhost:8000/api';
+import { API_URL } from '@/lib/config';
+const API = `${API_URL}/api`;
 
 export default function WhatsApp() {
   const [status, setStatus] = useState({ connected: false, hasQR: false, info: null, error: null });

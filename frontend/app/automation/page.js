@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-const API = 'http://localhost:8000';
+import { API_URL } from '@/lib/config';
+const API = API_URL;
 
 export default function Automation() {
   const [health, setHealth] = useState({});
