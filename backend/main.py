@@ -18,23 +18,36 @@ async def lifespan(app: FastAPI):
     from database import async_session
     from sqlalchemy import select
     from models import Business, AISetting
+    import sys
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        # Try to connect and create tables
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
 
-    # Seed default business & AI settings if not exists
-    async with async_session() as session:
-        async with session.begin():
-            result = await session.execute(select(Business).where(Business.id == 1))
-            if not result.scalar_one_or_none():
-                session.add(Business(name="My Business"))
-                await session.flush()
-            result = await session.execute(select(AISetting).where(AISetting.business_id == 1))
-            if not result.scalar_one_or_none():
-                session.add(AISetting(business_id=1))
+        # Seed default business & AI settings if not exists
+        async with async_session() as session:
+            async with session.begin():
+                result = await session.execute(select(Business).where(Business.id == 1))
+                if not result.scalar_one_or_none():
+                    session.add(Business(name="My Business"))
+                    await session.flush()
+                result = await session.execute(select(AISetting).where(AISetting.business_id == 1))
+                if not result.scalar_one_or_none():
+                    session.add(AISetting(business_id=1))
+        
+        print("✓ Database initialized successfully")
+    except Exception as e:
+        print(f"⚠ Database initialization warning: {type(e).__name__}: {str(e)[:100]}")
+        print("  App will continue with fallback SQLite database")
+        # Don't exit, let the app continue with whatever DB is configured
 
     yield
-    await engine.dispose()
+    
+    try:
+        await engine.dispose()
+    except Exception as e:
+        print(f"⚠ Error disposing engine: {e}")
 
 
 app = FastAPI(

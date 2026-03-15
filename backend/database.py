@@ -4,29 +4,41 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
-# Use DATABASE_URL environment variable (from Railway/deployment)
-# Fall back to SQLite for local development
-database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./smartflow.db")
+# Get database URL from environment or use SQLite
+database_url = os.getenv("DATABASE_URL")
 
-# Replace postgresql:// with postgresql+asyncpg:// for async support
-if database_url and database_url.startswith("postgresql://"):
-    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+# Default to SQLite if no DATABASE_URL is set
+if not database_url:
+    database_url = "sqlite+aiosqlite:///./smartflow.db"
+    print("No DATABASE_URL set, using SQLite database")
+else:
+    # Convert PostgreSQL to async format if needed
+    if database_url.startswith("postgresql://"):
+        database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        print(f"Using PostgreSQL database")
+    elif database_url.startswith("sqlite"):
+        print("Using SQLite database from environment")
 
-# Configure echo based on environment
-echo_sql = os.getenv("ENVIRONMENT", "development") == "development"
+print(f"Database URL configured: {database_url[:50]}...")
 
 try:
     engine = create_async_engine(
         database_url,
-        echo=echo_sql,
+        echo=False,
         pool_pre_ping=True,
         pool_size=5,
-        max_overflow=10
+        max_overflow=10,
+        # SQLite-specific options (safe to ignore for PostgreSQL)
+        connect_args={"timeout": 30} if "sqlite" in database_url else {}
     )
 except Exception as e:
-    print(f"Database connection error: {e}")
-    print(f"Using fallback SQLite database")
-    engine = create_async_engine("sqlite+aiosqlite:///./smartflow.db", echo=echo_sql)
+    print(f"Error creating database engine: {e}")
+    print("Falling back to SQLite")
+    engine = create_async_engine(
+        "sqlite+aiosqlite:///./smartflow.db",
+        echo=False,
+        pool_pre_ping=True
+    )
 
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
